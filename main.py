@@ -11,18 +11,15 @@ from datetime import datetime
 import time
 
 
-def send_mail(markdown_text, sender_email, recipient_email):
-    html_text = markdown2.markdown(markdown_text)
+def send_mail(text, sender_email, recipient_email):
+    html_text = markdown2.markdown(text)
 
     msg = MIMEMultipart('alternative')
     msg['From'] = sender_email
     msg['To'] = recipient_email
     msg['Subject'] = f"Wohnheimsinformationen {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
-    part1 = MIMEText(markdown_text, 'plain')
-    part2 = MIMEText(html_text, 'html')
-    msg.attach(part1)
-    msg.attach(part2)
+    msg.attach(MIMEText(html_text, 'html'))
 
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()  
@@ -43,23 +40,20 @@ recipient_email = os.getenv("RECEIVER")
 while True: 
     fizz_data = fizz_available(URL_FIZZ)
     ilive_data = ilive_available(URL_ILIVE)
+
     text = f"""
-    ## FIZZ Apartment
+## FIZZ Apartment
 
-    [website]({URL_FIZZ}), room {"" if fizz_data[0] else "not "}available
+[website]({URL_FIZZ}), room {"" if fizz_data[0] else "not "}available
 
-    ### data
-
-    `{fizz_data[1]}`
+`{fizz_data[1]}`
 
 
-    ## Urban-Living Apartment
+## Urban-Living Apartment
 
-    [website]({URL_ILIVE}), room {"" if ilive_data[0] else "not "} available
+[website]({URL_ILIVE}), room {"" if ilive_data[0] else "not "} available
 
-    ### data
-
-    `{ilive_data[1]}`
-    """
+`{ilive_data[1]}`
+"""
     send_mail(text, sender_email, recipient_email)
     time.sleep(TIME)
