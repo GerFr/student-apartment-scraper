@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 URL_FIZZ  = "https://www.the-fizz.com/search/?searchcriteria=BUILDING:THE_FIZZ_HAMBURG_STUDENTS;AREA:HAMBURG" 
 URL_ILIVE = "https://www.urban-living-hamburg.de/mieten"
-TIME = 120
+TIME = 600
 LOG_PATH = "main.log"
 
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_PATH,
                         filemode="w",
                         format='%(asctime)s %(filename)s %(message)s',
-                        level="info")
+                        level=logging.INFO)
     logger = logging.getLogger(__name__)
 
     load_dotenv()
@@ -51,10 +51,10 @@ if __name__ == "__main__":
     while True: 
         logger.info("get fizz data")
         fizz_data = fizz_available(URL_FIZZ)
-        logger.info("received fizz data")
+        logger.info(f"room {" " if fizz_data[0] else "not "}available")
         logger.info("get ilive data")
         ilive_data = ilive_available(URL_ILIVE)
-        logger.info("received ilive data")
+        logger.info(f"room {" " if ilive_data[0] else "not "}available")
 
 
         text = f"""
@@ -73,6 +73,5 @@ if __name__ == "__main__":
 """
         logger.info("sending message")
         send_mail(text, sender_email, recipient_email)
-        logger.info("sent message")
-        logger.info(f"waiting for {TIME} seconds")
+        logger.info(f"sent, waiting for {TIME} seconds")
         time.sleep(TIME)
