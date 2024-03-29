@@ -1,20 +1,25 @@
 from bs4 import BeautifulSoup
+import time
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 
-URL = "https://www.the-fizz.com/search/?searchcriteria=BUILDING:THE_FIZZ_HAMBURG_STUDENTS;AREA:HAMBURG"
+def rooms_available(url:str):
+    chrome_options = Options()  
+    chrome_options.add_argument("--headless") # Opens the browser up in background
 
+    with Chrome(options=chrome_options) as browser:
+        browser.get(url)
+        diff = 0
+        start = time.time()
+        while diff<10:
+            soup = BeautifulSoup(browser.page_source, 'html.parser')
+            applet = soup.find("div", {"class":"parameter-not-found alert alert-warning"})
+            end = time.time()
+            diff = end-start
+            if applet:
+                return not bool(applet), applet.contents[0]
+    return not bool(applet), "unoccupied"
 
-chrome_options = Options()  
-chrome_options.add_argument("--headless") # Opens the browser up in background
-
-with Chrome(options=chrome_options) as browser:
-     browser.get(URL)
-     found = False
-     while not found:
-        soup = BeautifulSoup(browser.page_source, 'html.parser')
-        applet = soup.find_all("div", {"class":"parameter-not-found alert alert-warning"})
-        found = bool(applet)
-
-with open("out/out.html", "w") as f:
-    f.write(applet[0].prettify())
+if __name__ == "__main__":
+    URL = "https://www.the-fizz.com/search/?searchcriteria=BUILDING:THE_FIZZ_HAMBURG_STUDENTS;AREA:HAMBURG" 
+    print(rooms_available(URL))
