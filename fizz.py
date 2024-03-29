@@ -17,8 +17,11 @@ def rooms_available(url:str):
             end = time.time()
             diff = end-start
             if applet:
-                return not bool(applet), applet.contents[0]
-    return not bool(applet), "unoccupied"
+                break
+    if applet:
+        return not bool(applet), applet.contents[0]
+    else:
+        return not bool(applet), "unoccupied"
 
 if __name__ == "__main__":
     URL = "https://www.the-fizz.com/search/?searchcriteria=BUILDING:THE_FIZZ_HAMBURG_STUDENTS;AREA:HAMBURG" 
