@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 def rooms_available(url:str):
     chrome_options = Options()  
     chrome_options.add_argument("--headless") # Opens the browser up in background
+    chrome_options.add_argument("--log-level=3")
 
     with Chrome(options=chrome_options) as browser:
         browser.get(url)
