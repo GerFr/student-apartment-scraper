@@ -2,13 +2,20 @@ from fizz import rooms_available as fizz_available
 from ilive import rooms_available as ilive_available
 
 import os
-from dotenv import load_dotenv
+import time
+import logging
 import smtplib
+import markdown2
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import markdown2
 from datetime import datetime
-import time
+from dotenv import load_dotenv
+
+
+URL_FIZZ  = "https://www.the-fizz.com/search/?searchcriteria=BUILDING:THE_FIZZ_HAMBURG_STUDENTS;AREA:HAMBURG" 
+URL_ILIVE = "https://www.urban-living-hamburg.de/mieten"
+TIME = 120
+LOG_PATH = "main.log"
 
 
 def send_mail(text, sender_email, recipient_email):
@@ -27,21 +34,30 @@ def send_mail(text, sender_email, recipient_email):
         server.sendmail(sender_email, recipient_email, msg.as_string())
 
 
-URL_FIZZ  = "https://www.the-fizz.com/search/?searchcriteria=BUILDING:THE_FIZZ_HAMBURG_STUDENTS;AREA:HAMBURG" 
-URL_ILIVE = "https://www.urban-living-hamburg.de/mieten"
-TIME = 120
+
+if __name__ == "__main__":
+    logging.basicConfig(filename=LOG_PATH,
+                        filemode="w",
+                        format='%(asctime)s %(filename)s %(message)s',
+                        level="info")
+    logger = logging.getLogger(__name__)
+
+    load_dotenv()
+    sender_email = os.getenv("SENDER")
+    password = os.getenv("APP_PASSWORD")
+    recipient_email = os.getenv("RECEIVER")
 
 
-load_dotenv()
-sender_email = os.getenv("SENDER")
-password = os.getenv("APP_PASSWORD")
-recipient_email = os.getenv("RECEIVER")
+    while True: 
+        logger.info("get fizz data")
+        fizz_data = fizz_available(URL_FIZZ)
+        logger.info("received fizz data")
+        logger.info("get ilive data")
+        ilive_data = ilive_available(URL_ILIVE)
+        logger.info("received ilive data")
 
-while True: 
-    fizz_data = fizz_available(URL_FIZZ)
-    ilive_data = ilive_available(URL_ILIVE)
 
-    text = f"""
+        text = f"""
 ## FIZZ Apartment
 
 [website]({URL_FIZZ}), room {"" if fizz_data[0] else "not "}available
@@ -55,5 +71,8 @@ while True:
 
 `{ilive_data[1]}`
 """
-    send_mail(text, sender_email, recipient_email)
-    time.sleep(TIME)
+        logger.info("sending message")
+        send_mail(text, sender_email, recipient_email)
+        logger.info("sent message")
+        logger.info(f"waiting for {TIME} seconds")
+        time.sleep(TIME)
