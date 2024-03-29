@@ -27,7 +27,7 @@ for stage in stages:
 for stage in filtered_stages:
     for room in stage:
         if room["status"] != "unit_occupied":
-            print(f"{room['title']:30} {room['status']}")
+            print(f"{room["title"]:30} {room["status"]}")
 
 
 
