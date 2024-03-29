@@ -15,7 +15,7 @@ ilive_data = ilive_available(URL_ILIVE)
 
 load_dotenv()
 sender_email = os.getenv("SENDER")
-password = os.getenv("PASSWORD")
+password = os.getenv("APP_PASSWORD")
 recipient_email = os.getenv("RECEIVER")
 
 text = f"{fizz_data[1], ilive_data[1]}"
